@@ -5,11 +5,13 @@ This program is a web scraping robot to obtain data from a web application and s
 
 # Import necessary modules
 import requests
+from requests.models import CONTENT_CHUNK_SIZE
 from selenium import webdriver
 #from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
 import time
 import pandas as pd
+from urllib.request import unquote
 
 # Infos about the program
 __author__ = "Rafael Seicali Malcervelli"
@@ -17,6 +19,9 @@ __author__ = "Rafael Seicali Malcervelli"
 # Globals
 counter = 0
 url = "https://esaj.tjsp.jus.br/cjpg/"
+contador = 0
+dicData = {}
+listaProcessos = []
 
 # Web driver from google chrome. In case of any problems, download the driver
 # from this website: https://sites.google.com/a/chromium.org/chromedriver/downloads
@@ -65,30 +70,53 @@ itemsTable = tableProcessos.table.find_all("tr", {"class": "fundocinza1"})
 firstProcess = itemsTable[0].table.find_all("tr", {"class": "fonte"})
 
 # Filter data
-contador = 0
-dicData = {}
-
-for i in firstProcess:
-    if contador == 0:
-        # Numero do processo
-        a = i.td.text.strip()
-        dicData["Processo:"] = ' '.join(a.split())
-        contador += 1
-    elif contador > 7:
-        pass
-    else:
-        a = i.td.text.strip()
-        dicData[' '.join(a.split()).split(':')[0]] = ' '.join(a.split()).split(':')[1][1:]
-        contador += 1
-
-print(dicData)
-#myString = itemsTable[0].table.find_all("tr", {"class": "fonte"})[1].td.text.strip()
-#print(' '.join(myString.split()).split(':'))
-
+for j in itemsTable:
+    process = j.table.find_all("tr", {"class": "fonte"})
+    for i in process:
+        if contador == 0:
+            # Numero do processo
+            a = i.td.text.strip()
+            dicData["Processo"] = ' '.join(a.split())
+            contador += 1
+        elif contador > 7:
+            pass
+        else:
+            a = i.td.text.strip()
+            dicData[' '.join(a.split()).split(':')[0]] = ' '.join(a.split()).split(':')[1][1:]
+            contador += 1
+    listaProcessos.append(dicData)
+    dicData = {}
+    contador = 0
 # -----------Getting data from HTML----------
-#Processo .find("span", {"class": "fonteNegrito"}).text
 
-# Para passar para um excel, usar PANDAS
+# -------Transfer into an Excel datasheet----
+frames = []
 
+for i in range(len(listaProcessos)):
+    df = pd.DataFrame.from_dict([listaProcessos[i]])
+    frames.append(df)
+dfFinal = pd.concat(frames).reset_index(drop=True)
+
+dfFinal.to_excel("processos.xlsx") #7)
+chrome.close()
+# -------Transfer into an Excel datasheet----
+
+# ---------Downloading PDF files-------------
+# chrome.find_element_by_xpath('//*[@id="divDadosResultado"]/table/tbody/tr[1]/td[2]/table/tbody/tr[1]/td/a[2]').click()
+# chrome.switch_to.window(chrome.window_handles[1])
+# new = chrome.current_url
+# options = webdriver.ChromeOptions()
+# options.add_experimental_option('prefs', {
+# "download.default_directory": "E:\Documents\internChallenge\files", #Change default directory for downloads
+# "download.directory_upgrade": True, 'profile.managed_default_content_settings.javascript': 2
+# })
+
+# chrome = webdriver.Chrome(PATH, options=options)
+
+# chrome.get(new)
+# time.sleep(5)
+# chrome.find_element_by_id("download").click()
+
+# ---------Downloading PDF files-------------
 
 
