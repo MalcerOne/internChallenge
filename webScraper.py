@@ -5,13 +5,10 @@ This program is a web scraping robot to obtain data from a web application and s
 
 # Import necessary modules
 import requests
-from requests.models import CONTENT_CHUNK_SIZE
 from selenium import webdriver
-#from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
 import time
 import pandas as pd
-from urllib.request import unquote
 
 # Infos about the program
 __author__ = "Rafael Seicali Malcervelli"
