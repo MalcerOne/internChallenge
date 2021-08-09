@@ -61,10 +61,32 @@ page = requests.get(soupURL)
 soup = BeautifulSoup(page.content, "html.parser")
 
 tableProcessos = soup.find("td", {"id": "tdResultados"})
-itemsTable = tableProcessos.table.find_all("tr")
-print(len(itemsTable))
-# -----------Getting data from HTML----------
+itemsTable = tableProcessos.table.find_all("tr", {"class": "fundocinza1"})
+firstProcess = itemsTable[0].table.find_all("tr", {"class": "fonte"})
 
+# Filter data
+contador = 0
+dicData = {}
+
+for i in firstProcess:
+    if contador == 0:
+        # Numero do processo
+        a = i.td.text.strip()
+        dicData["Processo:"] = ' '.join(a.split())
+        contador += 1
+    elif contador > 7:
+        pass
+    else:
+        a = i.td.text.strip()
+        dicData[' '.join(a.split()).split(':')[0]] = ' '.join(a.split()).split(':')[1][1:]
+        contador += 1
+
+print(dicData)
+#myString = itemsTable[0].table.find_all("tr", {"class": "fonte"})[1].td.text.strip()
+#print(' '.join(myString.split()).split(':'))
+
+# -----------Getting data from HTML----------
+#Processo .find("span", {"class": "fonteNegrito"}).text
 
 # Para passar para um excel, usar PANDAS
 
