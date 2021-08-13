@@ -175,4 +175,4 @@ dfFinal["PDF"] = dfFinal["Processo"].map(dicProcessosTexto)
 dfFinal.to_excel("processos.xlsx") #7)
 # ---------Downloading PDF files-------------
 
-# chrome.close()
+chrome.close()
